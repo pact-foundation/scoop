@@ -91,15 +91,15 @@ jobs:
         id: create-pr
         shell: bash
         run: |
-          git checkout -b $TOOL_NAME/version/v$VERSION
-          git add bucket/$TOOL_NAME.json
-          git commit -m "chore(release): Update $TOOL_NAME version to v$VERSION"
-          git push --set-upstream origin $TOOL_NAME/version/v$VERSION
+          git checkout -b $TOOL_NAME/version/$VERSION
+          git add .
+          git commit -m "chore(release): Update $TOOL_NAME version to $VERSION"
+          git push --set-upstream origin $TOOL_NAME/version/$VERSION
 
           echo "👏  Go and open that PR now:"
-          echo "🔗  $homepage/compare/master...$TOOL_NAME/version/v$VERSION"
+          echo "🔗  $homepage/compare/master...$TOOL_NAME/version/$VERSION"
 
-          gh pr create --title "chore(release): Update $TOOL_NAME version to v${VERSION}" --fill
+          gh pr create --title "chore(release): Update $TOOL_NAME version to ${VERSION}" --fill
           echo "🎉 Done!"
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
