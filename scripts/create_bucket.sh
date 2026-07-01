@@ -110,26 +110,16 @@ for tag in ${tags[@]}; do
         download_and_checksum $windows_arm64
         windows_arm64_shashum=${shasignature[1]}
         windows_arm64_url="$location/releases/download/$tag/$windows_arm64"
-        if [[ $TOOL_NAME == 'pact-broker-cli' ]]; then
-          windows_arm64_url="${windows_arm64_url}#/pact-broker-client.exe"
-        elif [[ $TOOL_NAME == 'pact-cli' ]]; then
-          windows_arm64_url="${windows_arm64_url}#/pact.exe"
-        fi
         echo "👮‍♀️ Checksum SHA256:\t $windows_arm64_shashum"
       fi
       if [[ $windows_x64 ]]; then
         download_and_checksum $windows_x64
         windows_x64_shashum=${shasignature[1]}
         windows_x64_url="$location/releases/download/$tag/$windows_x64"
-        if [[ $TOOL_NAME == 'pact-broker-cli' ]]; then
-          windows_x64_url="${windows_x64_url}#/pact-broker-client.exe"
-        elif [[ $TOOL_NAME == 'pact-cli' ]]; then
-          windows_x64_url="${windows_x64_url}#/pact.exe"
-        fi
         # if pact-legacy, set arm64 variables to x64 values
         ################################################################################
         ################################################################################
-        if [[ $TOOL_NAME == 'pact-legacy' && -z $windows_arm64 ]]; then
+        if [[ $TOOL_NAME == 'pact-legacy' || $TOOL_NAME == 'pact-broker-cli' || $TOOL_NAME == 'pact-cli' ]] && [[ -z $windows_arm64 ]]; then
           windows_arm64_shashum=$windows_x64_shashum
           windows_arm64_url=$windows_x64_url
           echo "No windows_arm64, so setting to windows_x64 values"
@@ -139,16 +129,12 @@ for tag in ${tags[@]}; do
 
         echo "👮‍♀️ Checksum SHA256:\t $windows_x64_shashum"
       fi
+
       if [[ $windows_x86 ]]; then
       echo "windows_x86: $windows_x86"
         download_and_checksum $windows_x86
         windows_x86_shashum=${shasignature[1]}
         windows_x86_url="$location/releases/download/$tag/$windows_x86"
-        if [[ $TOOL_NAME == 'pact-broker-cli' ]]; then
-          windows_x86_url="${windows_x86_url}#/pact-broker-client.exe"
-        elif [[ $TOOL_NAME == 'pact-cli' ]]; then
-          windows_x86_url="${windows_x86_url}#/pact.exe"
-        fi
         echo "👮‍♀️ Checksum SHA256:\t $windows_x86_shashum"
       fi
     fi
@@ -156,19 +142,31 @@ for tag in ${tags[@]}; do
   fi
 
   if [[ $windows_x64_shashum ]]; then
-    SCOOP_X64_TEMPLATE=\"64bit\":{\"url\":\"$windows_x64_url\",\"hash\":\"$windows_x64_shashum\",\"bin\":$bin}
+    if [[ $TOOL_NAME == 'pact-broker-cli' ]]; then
+      SCOOP_X64_TEMPLATE=\"64bit\":{\"url\":\"$windows_x64_url\",\"hash\":\"$windows_x64_shashum\",\"bin\":[[\"pact-broker-cli.exe\",\"pact-broker-client\"\]\]}
     else
+      SCOOP_X64_TEMPLATE=\"64bit\":{\"url\":\"$windows_x64_url\",\"hash\":\"$windows_x64_shashum\",\"bin\":$bin}
+    fi
+  else
     SCOOP_X64_TEMPLATE=""
   fi
   if [[ $windows_arm64_shashum ]]; then
-    SCOOP_ARM64_TEMPLATE=,\"arm64\":{\"url\":\"$windows_arm64_url\",\"hash\":\"$windows_arm64_shashum\",\"bin\":$bin}
-    else SCOOP_ARM64_TEMPLATE=,\"arm64\":{}
+    if [[ $TOOL_NAME == 'pact-broker-cli' ]]; then
+      SCOOP_ARM64_TEMPLATE=,\"arm64\":{\"url\":\"$windows_arm64_url\",\"hash\":\"$windows_arm64_shashum\",\"bin\":[[\"pact-broker-cli.exe\",\"pact-broker-client\"\]\]}
+    else
+      SCOOP_ARM64_TEMPLATE=,\"arm64\":{\"url\":\"$windows_arm64_url\",\"hash\":\"$windows_arm64_shashum\",\"bin\":$bin}
+    fi
+  else
+    SCOOP_ARM64_TEMPLATE=,\"arm64\":{}
   fi
   if [[ $windows_x86_shashum ]]; then
-    SCOOP_X86_TEMPLATE=,\"32bit\":{\"url\":\"$windows_x86_url\",\"hash\":\"$windows_x86_shashum\",\"bin\":$bin}
-    echo $windows_x86_url
-    echo $SCOOP_X86_TEMPLATE
-    else SCOOP_X86_TEMPLATE=,\"32bit\":{}
+    if [[ $TOOL_NAME == 'pact-broker-cli' ]]; then
+      SCOOP_X86_TEMPLATE=,\"32bit\":{\"url\":\"$windows_x86_url\",\"hash\":\"$windows_x86_shashum\",\"bin\":[[\"pact-broker-cli.exe\",\"pact-broker-client\"\]\]}
+    else
+      SCOOP_X86_TEMPLATE=,\"32bit\":{\"url\":\"$windows_x86_url\",\"hash\":\"$windows_x86_shashum\",\"bin\":$bin}
+    fi
+  else
+    SCOOP_X86_TEMPLATE=,\"32bit\":{}
   fi
 
 
