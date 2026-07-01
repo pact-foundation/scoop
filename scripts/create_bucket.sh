@@ -156,7 +156,7 @@ for tag in ${tags[@]}; do
     else
       SCOOP_ARM64_TEMPLATE=,\"arm64\":{\"url\":\"$windows_arm64_url\",\"hash\":\"$windows_arm64_shashum\",\"bin\":$bin}
     fi
-  else 
+  else
     SCOOP_ARM64_TEMPLATE=,\"arm64\":{}
   fi
   if [[ $windows_x86_shashum ]]; then
@@ -165,7 +165,7 @@ for tag in ${tags[@]}; do
     else
       SCOOP_X86_TEMPLATE=,\"32bit\":{\"url\":\"$windows_x86_url\",\"hash\":\"$windows_x86_shashum\",\"bin\":$bin}
     fi
-  else 
+  else
     SCOOP_X86_TEMPLATE=,\"32bit\":{}
   fi
 
