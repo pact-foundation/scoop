@@ -36,13 +36,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-
-      - name: Config github actor
-        run: |
-          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-          git config --global user.name "${GITHUB_ACTOR}"
-          git config pull.ff only
-
       - name: Set script to run based on type of dispatch
         id: set-script
         shell: bash
@@ -91,6 +84,9 @@ jobs:
         id: create-pr
         shell: bash
         run: |
+          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config pull.ff only
           git checkout -b $TOOL_NAME/version/$VERSION
           git add .
           git commit -m "chore(release): Update $TOOL_NAME version to $VERSION"
