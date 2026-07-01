@@ -49,7 +49,7 @@ jobs:
         run: |
           TYPE="${{ github.event.client_payload.type || github.event.inputs.type }}"
           VERSION="${{ github.event.client_payload.version || github.event.inputs.version }}"
-          
+
           case "$TYPE" in
             pact-cli-released)
               echo "TOOL_NAME=pact-cli" >> $GITHUB_ENV
