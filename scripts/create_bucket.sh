@@ -58,7 +58,7 @@ elif [[ $TOOL_NAME == 'pact-legacy' ]]; then
   homepage="https://github.com/pact-foundation/ruby-standalone/README.md"
   location="https://github.com/pact-foundation/pact-standalone"
   license="MIT"
-  bin='"pact\\bin\\pact-broker.bat","pact\\bin\\pact-stub-service.bat","pact\\bin\\pact-message.bat","pact\\bin\\pact-provider-verifier.bat","pact\\bin\\pact-mock-service.bat","pact\\bin\\pact-publish.bat","pact\\bin\\pactflow.bat"'
+  bin=['"pact\\bin\\pact-broker.bat","pact\\bin\\pact-stub-service.bat","pact\\bin\\pact-message.bat","pact\\bin\\pact-provider-verifier.bat","pact\\bin\\pact-mock-service.bat","pact\\bin\\pact-publish.bat","pact\\bin\\pactflow.bat"'\]
   REPO=pact-foundation/pact-standalone
 fi
 
@@ -145,7 +145,7 @@ for tag in ${tags[@]}; do
     if [[ $TOOL_NAME == 'pact-broker-cli' ]]; then
       SCOOP_X64_TEMPLATE=\"64bit\":{\"url\":\"$windows_x64_url\",\"hash\":\"$windows_x64_shashum\",\"bin\":[[\"pact-broker-cli.exe\",\"pact-broker-client\"\]\]}
     else
-      SCOOP_X64_TEMPLATE=\"64bit\":{\"url\":\"$windows_x64_url\",\"hash\":\"$windows_x64_shashum\",\"bin\":$bin}
+    SCOOP_X64_TEMPLATE=\"64bit\":{\"url\":\"$windows_x64_url\",\"hash\":\"$windows_x64_shashum\",\"bin\":$bin}
     fi
   else
     SCOOP_X64_TEMPLATE=""
@@ -154,7 +154,7 @@ for tag in ${tags[@]}; do
     if [[ $TOOL_NAME == 'pact-broker-cli' ]]; then
       SCOOP_ARM64_TEMPLATE=,\"arm64\":{\"url\":\"$windows_arm64_url\",\"hash\":\"$windows_arm64_shashum\",\"bin\":[[\"pact-broker-cli.exe\",\"pact-broker-client\"\]\]}
     else
-      SCOOP_ARM64_TEMPLATE=,\"arm64\":{\"url\":\"$windows_arm64_url\",\"hash\":\"$windows_arm64_shashum\",\"bin\":$bin}
+    SCOOP_ARM64_TEMPLATE=,\"arm64\":{\"url\":\"$windows_arm64_url\",\"hash\":\"$windows_arm64_shashum\",\"bin\":$bin}
     fi
   else
     SCOOP_ARM64_TEMPLATE=,\"arm64\":{}
