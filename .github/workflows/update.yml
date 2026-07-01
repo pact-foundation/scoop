@@ -1,0 +1,107 @@
+name: Update version
+on:
+  repository_dispatch:
+    types:
+      - pact-cli-released
+      - pact-verifier-cli-released
+      - pact-broker-cli-released
+      - pact-stub-cli-released
+      - pact-plugin-cli-released
+      - pact-mock-cli-released
+      - pact-standalone-released
+  workflow_dispatch:
+    inputs:
+      type:
+        description: 'Type of release'
+        required: true
+        type: choice
+        options:
+          - pact-cli-released
+          - pact-verifier-cli-released
+          - pact-broker-cli-released
+          - pact-stub-cli-released
+          - pact-plugin-cli-released
+          - pact-mock-cli-released
+          - pact-standalone-released
+      version:
+        description: 'Version to update to'
+        required: true
+        type: string
+
+jobs:
+  release:
+    name: Release update
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Config github actor
+        run: |
+          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config pull.ff only
+
+      - name: Set script to run based on type of dispatch
+        id: set-script
+        shell: bash
+        run: |
+          TYPE="${{ github.event.client_payload.type || github.event.inputs.type }}"
+          VERSION="${{ github.event.client_payload.version || github.event.inputs.version }}"
+          
+          case "$TYPE" in
+            pact-cli-released)
+              echo "TOOL_NAME=pact-cli" >> $GITHUB_ENV
+              ;;
+            pact-broker-cli-released)
+              echo "TOOL_NAME=pact-broker-cli" >> $GITHUB_ENV
+              ;;
+            pact-verifier-cli-released)
+              echo "TOOL_NAME=pact_verifier_cli" >> $GITHUB_ENV
+              ;;
+            pact-stub-cli-released)
+              echo "TOOL_NAME=pact-stub-server" >> $GITHUB_ENV
+              ;;
+            pact-plugin-cli-released)
+              echo "TOOL_NAME=pact-plugin-cli" >> $GITHUB_ENV
+              ;;
+            pact-mock-cli-released)
+              echo "TOOL_NAME=pact_mock_server_cli" >> $GITHUB_ENV
+              ;;
+            pact-standalone-released)
+              echo "TOOL_NAME=pact-legacy" >> $GITHUB_ENV
+              ;;
+            *)
+              echo "Unknown type: $TYPE"
+              exit 1
+              ;;
+          esac
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Run update script
+        shell: bash
+        run: |
+          ./scripts/create_bucket.sh $VERSION
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+          CREATE_PR: true
+
+      - name: Create PR for version update
+        id: create-pr
+        shell: bash
+        run: |
+          git checkout -b $TOOL_NAME/version/v$VERSION
+          git add bucket/$TOOL_NAME.json
+          git commit -m "chore(release): Update $TOOL_NAME version to v$VERSION"
+          git push --set-upstream origin $TOOL_NAME/version/v$VERSION
+
+          echo "👏  Go and open that PR now:"
+          echo "🔗  $homepage/compare/master...$TOOL_NAME/version/v$VERSION"
+
+          gh pr create --title "chore(release): Update $TOOL_NAME version to v${VERSION}" --fill
+          echo "🎉 Done!"
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+          CREATE_PR: true
+
