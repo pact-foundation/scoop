@@ -30,6 +30,12 @@ jobs:
           shell: powershell
       - name: Test Bucket
         shell: powershell
+        env:
+          # Scoop's bucket tests validate changed JSON against the app manifest
+          # schema, and the changed-file lookup is not scoped to bucket/, so it
+          # also picks up config files such as .github/renovate.json. Clearing
+          # CI selects the discovery branch that enumerates bucket/ directly.
+          CI: ''
         run: |
           $env:SCOOP_HOME="$(Convert-Path '.\scoop_core')"
           .\my_bucket\bin\test.ps1
@@ -54,6 +60,12 @@ jobs:
           shell: pwsh
       - name: Test Bucket
         shell: pwsh
+        env:
+          # Scoop's bucket tests validate changed JSON against the app manifest
+          # schema, and the changed-file lookup is not scoped to bucket/, so it
+          # also picks up config files such as .github/renovate.json. Clearing
+          # CI selects the discovery branch that enumerates bucket/ directly.
+          CI: ''
         run: |
           $env:SCOOP_HOME="$(Convert-Path '.\scoop_core')"
           .\my_bucket\bin\test.ps1
