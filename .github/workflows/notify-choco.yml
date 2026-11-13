@@ -1,0 +1,36 @@
+name: Notify choco
+
+# pact-foundation/choco builds its packages from the manifests in bucket/, so
+# once a manifest change lands on main, ask choco to open its own update PR.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'bucket/*.json'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510  # v3.3.0
+        with:
+          app-id: ${{ vars.PACT_FOUNDATION_BOT_APP_ID }}
+          private-key: ${{ secrets.PACT_FOUNDATION_BOT_PRIVATE_KEY }}
+          owner: pact-foundation
+          repositories: choco
+      - name: Dispatch to choco
+        uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697  # v4.0.1
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          repository: pact-foundation/choco
+          event-type: scoop-package-released
+          client-payload: |
+            {
+              "sha": "${{ github.sha }}"
+            }
