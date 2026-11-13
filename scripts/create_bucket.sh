@@ -62,7 +62,7 @@ elif [[ $TOOL_NAME == 'pact-legacy' ]]; then
   REPO=pact-foundation/pact-standalone
 fi
 
-if [[ $1 && $TOOL_NAME == 'pact_verifier_cli' ]]; then
+if [[ $1 && $TOOL_NAME == 'pact_verifier_cli' && $1 != $TOOL_NAME-* ]]; then
   tags=($TOOL_NAME-$1)
 elif [[ $1 ]]; then
   tags=($1)
