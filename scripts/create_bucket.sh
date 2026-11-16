@@ -105,6 +105,24 @@ for tag in ${tags[@]}; do
       windows_x64=$(gh release view --repo $REPO $tag --json assets -q '.assets[].name' | grep 'win32' | grep -v 'checksum' | grep -v 'sha256')
   fi
 
+  # Rust CLIs built with cargo-dist also publish <tool>-<arch>-pc-windows-msvc.zip archives
+  # alongside the legacy <bin>-windows-<arch>.exe.gz assets. Keep using the .exe.gz assets
+  # for these tools until the manifests move over to the cargo-dist archives.
+  if [[ $TOOL_NAME != 'pact-cli' && $TOOL_NAME != 'pact-broker-cli' && $TOOL_NAME != 'pact-legacy' ]]; then
+    windows_arm64=$(echo "$windows_arm64" | grep -v 'pc-windows-msvc')
+    windows_x64=$(echo "$windows_x64" | grep -v 'pc-windows-msvc')
+    windows_x86=$(echo "$windows_x86" | grep -v 'pc-windows-msvc')
+  fi
+
+  # Each architecture must resolve to exactly one asset, otherwise the manifest is malformed
+  for asset_var in windows_arm64 windows_x64 windows_x86; do
+    if [[ $(echo -n "${!asset_var}" | grep -c '') -gt 1 ]]; then
+      echo "❌ $asset_var matched more than one release asset for $tag:"
+      echo "${!asset_var}"
+      exit 1
+    fi
+  done
+
   if [[ $windows_arm64 || $windows_x64 || $windows_x86 ]]; then
 
     if [[ $windows_arm64 || $windows_x64 || $windows_x86 ]]; then
@@ -184,6 +202,11 @@ for tag in ${tags[@]}; do
     '{version: $tag,description: $description,homepage: $homepage,license: $license,architecture: {'$SCOOP_X64_TEMPLATE''$SCOOP_X86_TEMPLATE''$SCOOP_ARM64_TEMPLATE'}}')
   echo $SCOOP_STRING >bucket/$SCOOP_FILENAME.tmp
   echo "" >>bucket/$SCOOP_FILENAME.tmp
+  if ! jq -e '.version and .architecture' bucket/$SCOOP_FILENAME.tmp >/dev/null 2>&1; then
+    echo "❌ Generated manifest for $tag is empty or invalid, not updating bucket/$SCOOP_FILENAME"
+    rm -f bucket/$SCOOP_FILENAME.tmp
+    exit 1
+  fi
   jq . --indent 4 bucket/$SCOOP_FILENAME.tmp >bucket/$SCOOP_FILENAME
   rm bucket/$SCOOP_FILENAME.tmp
 

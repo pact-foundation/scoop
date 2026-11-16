@@ -96,6 +96,12 @@ jobs:
             echo "$TOOL_NAME manifest is already at $RELEASE_VERSION; no PR needed"
             exit 0
           fi
+          for manifest in $(git diff --name-only -- bucket); do
+            if ! jq -e '.version and .architecture' "$manifest" >/dev/null; then
+              echo "❌ $manifest is empty or invalid; refusing to open a PR"
+              exit 1
+            fi
+          done
           BRANCH="$TOOL_NAME/version/$RELEASE_VERSION"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
           git config --global user.name "${GITHUB_ACTOR}"
