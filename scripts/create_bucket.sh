@@ -161,6 +161,16 @@ for tag in ${tags[@]}; do
 
   fi
 
+  # Newer .exe.gz release assets carry no original filename in the gzip header, so scoop would
+  # extract them as <bin>-windows-<arch>.exe and the shim target would not exist. Rename the
+  # download with scoop's #/ url fragment so it always extracts to the expected bin name.
+  bin_name=${bin//\"/}
+  for url_var in windows_arm64_url windows_x64_url windows_x86_url; do
+    if [[ ${!url_var} == *.exe.gz ]]; then
+      printf -v "$url_var" '%s' "${!url_var}#/${bin_name}.gz"
+    fi
+  done
+
   if [[ $windows_x64_shashum ]]; then
     if [[ $TOOL_NAME == 'pact-broker-cli' ]]; then
       SCOOP_X64_TEMPLATE=\"64bit\":{\"url\":\"$windows_x64_url\",\"hash\":\"$windows_x64_shashum\",\"bin\":[[\"pact-broker-cli.exe\",\"pact-broker-client\"\]\]}

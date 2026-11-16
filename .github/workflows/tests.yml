@@ -50,13 +50,11 @@ jobs:
         run: |
           scoop config use_external_7zip true
 
-      - name: Add Pact Scoop Bucket
-        run: |
-          scoop bucket add pact https://github.com/you54f/scoop
-
+      # Install from this checkout's manifest so pull requests test their own changes
+      # (scoop bucket add only accepts remote git urls, not a local path)
       - name: Install ${{ matrix.package }} Package
         run: |
-          scoop install ${{ matrix.package }}
+          scoop install ${{ github.workspace }}\bucket\${{ matrix.package }}.json
 
       - name: Test pact-legacy scripts
         if: matrix.package == 'pact-legacy'
