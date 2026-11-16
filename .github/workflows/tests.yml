@@ -52,7 +52,7 @@ jobs:
 
       - name: Add Pact Scoop Bucket
         run: |
-          scoop bucket add pact https://github.com/you54f/scoop
+          scoop bucket add pact ${{ github.workspace }}
 
       - name: Install ${{ matrix.package }} Package
         run: |
